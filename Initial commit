@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comment Filter – Say the point, keep the respect</title>
+  <meta name="description" content="Type the harsh comment you’re about to post. Get a version that keeps your point but removes the sting.">
+
+  <!--  North Light Path brand tokens -->
+  <style>
+    :root{
+      --deep-indigo:#2C3E50; --slate-blue:#4A5F7F; --warm-amber:#D4915D; --burnt-sienna:#B87A54;
+      --soft-peach:#E5B299; --cream:#F8F6F3; --pale-sand:#F5EDE5; --charcoal:#3D3D3D; --muted-mauve:#8B7B7A;
+      --white:#ffffff;
+      --north:var(--deep-indigo); --teal:var(--warm-amber); --magenta:var(--burnt-sienna);
+      --snow:var(--cream); --ink:var(--charcoal);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--snow);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;}
+    a{color:var(--teal);text-decoration:none;}a:hover{opacity:.8;}
+
+    header{background:var(--north);color:var(--white);padding:40px 0;text-align:center;}
+    header h1{font-family:'Sora',sans-serif;font-weight:800;font-size:2rem;letter-spacing:1px;}
+    header p{max-width:600px;margin:10px auto 0;font-size:1.1rem;opacity:.9;}
+
+    main{flex:1;padding:60px 20px;max-width:700px;margin:0 auto;width:100%;}
+    .input-group{display:flex;flex-direction:column;gap:15px;margin-bottom:30px;}
+    label{font-weight:600;margin-bottom:5px;color:var(--north);}
+    textarea{width:100%;min-height:140px;padding:15px;border:2px solid var(--soft-peach);border-radius:8px;font-family:'Inter',sans-serif;resize:vertical;}
+    button{align-self:flex-start;background:var(--teal);color:var(--north);border:none;padding:12px 28px;border-radius:50px;font-weight:600;cursor:pointer;transition:all .3s ease;}
+    button:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,.1);}
+
+    #card{margin-top:30px;background:var(--white);border:1px solid var(--soft-peach);border-radius:12px;padding:25px;display:none;box-shadow:0 5px 20px rgba(44,62,80,.05);}
+    #card.show{display:block;}
+    .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.85rem;font-weight:600;color:var(--white);margin-bottom:12px;}
+    .Fear,.Control,.Shame{background:var(--magenta);}
+    .Peace,.Harmony,.Collaboration{background:var(--slate-blue);}
+    .Respect-Kept{background:var(--teal);}
+    .Respect-Lost{background:var(--muted-mauve);}
+    #rewrite{font-size:1.1rem;margin-bottom:15px;color:var(--north);}
+    #score{font-weight:600;color:var(--magenta);}
+    .copy-btn{background:transparent;border:2px solid var(--teal);color:var(--teal);padding:6px 16px;border-radius:20px;font-size:.9rem;margin-left:10px;cursor:pointer;}
+    .copy-btn:hover{background:var(--teal);color:var(--white);}
+    footer{text-align:center;padding:20px;font-size:.9rem;color:var(--muted-mauve);background:var(--pale-sand);}
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Comment Filter</h1>
+  <p>Type the harsh comment you’re about to post. Get a version that keeps your point but removes the sting.</p>
+</header>
+
+<main>
+  <div class="input-group">
+    <label for="input">Your raw comment</label>
+    <textarea id="input" placeholder="E.g. I strongly disagree—can we walk through the data that led to this decision?""></textarea>
+    <button onclick="filterComment()">Filter Comment</button>
+  </div>
+
+  <div id="card">
+    <span id="badge" class="badge"></span>
+    <p id="rewrite"></p>
+    <button class="copy-btn" onclick="copyRewrite()">Copy</button>
+    <p id="score"></p>
+  </div>
+
+  <footer>
+    Comments filtered: <span id="count">0</span> | © 2025 North Light Path
+  </footer>
+</main>
+
+<script>
+/* ---------- FAKE API (zero cost) ---------- */
+function filterComment(){
+  const txt=document.getElementById("input").value.trim();
+  if(!txt){alert("Type a comment first.");return;}
+  const h=txt.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+  const sources=["Fear","Control","Shame","Peace","Harmony","Collaboration"];
+  const align  =["Respect-Kept","Respect-Lost"];
+  const source =sources[Math.abs(h)%6];
+  const alignment=Math.abs(h)%2===0?align[0]:align[1];
+  const score  =100-(sources.indexOf(source)*15)-(alignment==="Respect-Lost"?20:0);
+  const rewrite="I strongly disagree—can we walk through the data that led to this decision?";
+  document.getElementById("badge").textContent=source+" · "+alignment;
+  document.getElementById("badge").className="badge "+source;
+  document.getElementById("rewrite").textContent=rewrite;
+  document.getElementById("score").textContent="Respect Index: "+score+"/100";
+  document.getElementById("card").classList.add("show");
+  let c=parseInt(localStorage.getItem("filterCount")||"0")+1;
+  localStorage.setItem("filterCount",c);
+  document.getElementById("count").textContent=c;
+}
+function copyRewrite(){
+  navigator.clipboard.writeText(document.getElementById("rewrite").textContent);
+  document.querySelector(".copy-btn").textContent="Copied!";
+  setTimeout(()=>document.querySelector(".copy-btn").textContent="Copy",1500);
+}
+</script>
+</body>
+</html>
+
